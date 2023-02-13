@@ -54,5 +54,23 @@ public class ValuesController : ControllerBase
 
         return Ok(capitalAllocationRate);
     }
+    [Route("api/Calculate-Used-Payment")]
+    [HttpPost]
+    public ActionResult<decimal> CalculateUsedPayment(FinancialDataInput input)
+    {
+        decimal usedPayment = 0;
+        if (input.InterestType == "Fixed")
+        {
+            usedPayment = input.Balance * input.InterestSpread;
+        }
+        else
+        {
+            usedPayment = input.Balance * input.TeaserSpread;
+        }
 
+        decimal transactionCostRate = CalculateTransactionCostRate(input).Value;
+        usedPayment += transactionCostRate;
+
+        return usedPayment;
+    }
 }
