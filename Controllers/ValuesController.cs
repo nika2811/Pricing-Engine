@@ -29,4 +29,14 @@ public class ValuesController : ControllerBase
 
         return Ok(interestRate);
     }
+
+    [Route("api/Calculate-Transaction-cost-rate")]
+    [HttpPost]
+    public ActionResult<decimal> CalculateTransactionCostRate(FinancialDataInput input)
+    {
+        decimal transactionCostRate = input.AvgMonthlyFeeIncome / (1 - input.DiscountFromStandardFee);
+        return Ok(transactionCostRate);
+    }
+
+
 }
