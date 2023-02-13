@@ -10,4 +10,5 @@ public class FinancialDbContext : DbContext
     }
 
     public DbSet<FinancialDataInput> Finance { get; set; }
+    public DbSet<CalculatedInputs> CalculatedInputs { get; set; }
 }

@@ -27,6 +27,13 @@ public class ValuesController : ControllerBase
         else
             interestRate = input.InterestSpread + input.InterestRate;
 
+        var record = _context.CalculatedInputs.FirstOrDefault(x => x.Id == 1);
+        if (record != null)
+        {
+            record.InterestRate = interestRate;
+            _context.SaveChanges();
+        }
+
         return Ok(interestRate);
     }
 
@@ -35,23 +42,38 @@ public class ValuesController : ControllerBase
     public ActionResult<decimal> CalculateTransactionCostRate(FinancialDataInput input)
     {
         var transactionCostRate = input.AvgMonthlyFeeIncome / (1 - input.DiscountFromStandardFee);
+
+        var record = _context.CalculatedInputs.FirstOrDefault(x => x.Id == 1);
+        if (record != null)
+        {
+            record.TransactionCostRate = transactionCostRate;
+            _context.SaveChanges();
+        }
+
         return Ok(transactionCostRate);
     }
 
 
     [Route("api/Calculate-Capital-Allocation-Rate")]
     [HttpPost]
-    public ActionResult<decimal> CalculateCapitalAllocationRate()
-    {
-        var databaseInputs = _context.;
-        decimal capitalAllocationRate = 0;
-        if (databaseInputs.CreditRiskAllocation == "Capital")
-            capitalAllocationRate = databaseInputs.CapitalRiskRateWeight + databaseInputs.MaintenanceRate;
-        else
-            capitalAllocationRate = databaseInputs.MaintenanceRate;
-
-        return Ok(capitalAllocationRate);
-    }
+    // public ActionResult<decimal> CalculateCapitalAllocationRate()
+    // {
+    //     var databaseInputs = _context.;
+    //     decimal capitalAllocationRate = 0;
+    //     if (databaseInputs.CreditRiskAllocation == "Capital")
+    //         capitalAllocationRate = databaseInputs.CapitalRiskRateWeight + databaseInputs.MaintenanceRate;
+    //     else
+    //         capitalAllocationRate = databaseInputs.MaintenanceRate;
+    //
+    //     var record = _context.CalculatedInputs.FirstOrDefault(x => x.Id == 1);
+    //     if (record != null)
+    //     {
+    //         record.CapitalAllocationRate = capitalAllocationRate;
+    //         _context.SaveChanges();
+    //     }
+    //
+    //     return Ok(capitalAllocationRate);
+    // }
 
 
     [Route("api/Calculate-Used-Payment")]
@@ -66,6 +88,13 @@ public class ValuesController : ControllerBase
 
         var transactionCostRate = CalculateTransactionCostRate(input).Value;
         usedPayment += transactionCostRate;
+
+        var record = _context.CalculatedInputs.FirstOrDefault(x => x.Id == 1);
+        if (record != null)
+        {
+            record.UsedPayment = usedPayment ;
+            _context.SaveChanges();
+        }
 
         return usedPayment;
     }
