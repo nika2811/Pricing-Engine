@@ -34,9 +34,11 @@ public class ValuesController : ControllerBase
     [HttpPost]
     public ActionResult<decimal> CalculateTransactionCostRate(FinancialDataInput input)
     {
-        decimal transactionCostRate = input.AvgMonthlyFeeIncome / (1 - input.DiscountFromStandardFee);
+        var transactionCostRate = input.AvgMonthlyFeeIncome / (1 - input.DiscountFromStandardFee);
         return Ok(transactionCostRate);
     }
+
+
     [Route("api/Calculate-Capital-Allocation-Rate")]
     [HttpPost]
     public ActionResult<decimal> CalculateCapitalAllocationRate()
@@ -44,31 +46,25 @@ public class ValuesController : ControllerBase
         var databaseInputs = _context.;
         decimal capitalAllocationRate = 0;
         if (databaseInputs.CreditRiskAllocation == "Capital")
-        {
             capitalAllocationRate = databaseInputs.CapitalRiskRateWeight + databaseInputs.MaintenanceRate;
-        }
         else
-        {
             capitalAllocationRate = databaseInputs.MaintenanceRate;
-        }
 
         return Ok(capitalAllocationRate);
     }
+
+
     [Route("api/Calculate-Used-Payment")]
     [HttpPost]
     public ActionResult<decimal> CalculateUsedPayment(FinancialDataInput input)
     {
         decimal usedPayment = 0;
         if (input.InterestType == "Fixed")
-        {
             usedPayment = input.Balance * input.InterestSpread;
-        }
         else
-        {
             usedPayment = input.Balance * input.TeaserSpread;
-        }
 
-        decimal transactionCostRate = CalculateTransactionCostRate(input).Value;
+        var transactionCostRate = CalculateTransactionCostRate(input).Value;
         usedPayment += transactionCostRate;
 
         return usedPayment;
