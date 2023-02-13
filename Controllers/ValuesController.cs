@@ -37,6 +37,22 @@ public class ValuesController : ControllerBase
         decimal transactionCostRate = input.AvgMonthlyFeeIncome / (1 - input.DiscountFromStandardFee);
         return Ok(transactionCostRate);
     }
+    [Route("api/Calculate-Capital-Allocation-Rate")]
+    [HttpPost]
+    public ActionResult<decimal> CalculateCapitalAllocationRate()
+    {
+        var databaseInputs = _context.;
+        decimal capitalAllocationRate = 0;
+        if (databaseInputs.CreditRiskAllocation == "Capital")
+        {
+            capitalAllocationRate = databaseInputs.CapitalRiskRateWeight + databaseInputs.MaintenanceRate;
+        }
+        else
+        {
+            capitalAllocationRate = databaseInputs.MaintenanceRate;
+        }
 
+        return Ok(capitalAllocationRate);
+    }
 
 }
