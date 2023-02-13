@@ -15,5 +15,18 @@ public class ValuesController : ControllerBase
         _context = context;
     }
 
-   
+    [Route("api/Calculate-Interest-Rate")]
+    [HttpPost]
+    public ActionResult<decimal> CalculateInterestRate(FinancialDataInput input)
+    {
+        decimal interestRate;
+        if (input.InterestType == "Fixed" && (input.ProductType == "Loan" || input.ProductType == "CD"))
+            interestRate = input.InterestRate;
+        else if (input.TeaserPeriod == 0)
+            interestRate = input.InterestRate;
+        else
+            interestRate = input.InterestSpread + input.InterestRate;
+
+        return Ok(interestRate);
+    }
 }
