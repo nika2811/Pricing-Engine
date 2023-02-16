@@ -9,9 +9,7 @@ public class FinancialDbContext : DbContext
     {
     }
 
-    public DbSet<FinancialDataInput> Finance { get; set; }
     public DbSet<DatabaseInputs> DatabaseInputs { get; set; }
-    public DbSet<CalculatedInputs> CalculatedInputs { get; set; }
-    public DbSet<LoanAmortizationSchedule> LoanAmortizationSchedules { get;set; }
+    // public DbSet<CalculatedInputs> CalculatedInputs { get; set; }
 
 }

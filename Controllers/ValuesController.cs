@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Pricing_Engine.Db;
 using Pricing_Engine.Models;
+using Pricing_Engine.Services;
 
 namespace Pricing_Engine.Controllers;
 
@@ -8,12 +9,25 @@ namespace Pricing_Engine.Controllers;
 [ApiController]
 public class ValuesController : ControllerBase
 {
-    private readonly FinancialDbContext _context;
+    private readonly CalculatedInputs _calculatedInputs = new CalculatedInputs();
 
-    public ValuesController(FinancialDbContext context)
+    private readonly FinancialDbContext _context;
+    private readonly SaveDatabaseInputs _saveDatabaseInputs;
+
+    public ValuesController(FinancialDbContext context,SaveDatabaseInputs saveDatabaseInputs)
     {
         _context = context;
+        _saveDatabaseInputs = saveDatabaseInputs;
     }
+
+    [Route("api/Save-Database-Inputs")]
+    [HttpPost]
+    public IActionResult SaveTable()
+    {
+        _saveDatabaseInputs.SaveTableToDatabase();
+        return Ok("Table information saved successfully.");
+    }
+
 
     [Route("api/Calculate-Interest-Rate")]
     [HttpPost]
@@ -27,12 +41,7 @@ public class ValuesController : ControllerBase
         else
             interestRate = input.InterestSpread + input.InterestRate;
 
-        var record = _context.CalculatedInputs.FirstOrDefault(x => x.Id == 1);
-        if (record != null)
-        {
-            record.InterestRate = interestRate;
-            _context.SaveChanges();
-        }
+        _calculatedInputs.InterestRate = interestRate;
 
         return Ok(interestRate);
     }
@@ -43,12 +52,7 @@ public class ValuesController : ControllerBase
     {
         var transactionCostRate = input.AvgMonthlyFeeIncome / (1 - input.DiscountFromStandardFee);
 
-        var record = _context.CalculatedInputs.FirstOrDefault(x => x.Id == 1);
-        if (record != null)
-        {
-            record.TransactionCostRate = transactionCostRate;
-            _context.SaveChanges();
-        }
+        _calculatedInputs.TransactionCostRate = transactionCostRate;
 
         return Ok(transactionCostRate);
     }
@@ -56,25 +60,19 @@ public class ValuesController : ControllerBase
 
     [Route("api/Calculate-Capital-Allocation-Rate")]
     [HttpPost]
-    // public ActionResult<decimal> CalculateCapitalAllocationRate()
-    // {
-    //     var databaseInputs = _context.;
-    //     decimal capitalAllocationRate = 0;
-    //     if (databaseInputs.CreditRiskAllocation == "Capital")
-    //         capitalAllocationRate = databaseInputs.CapitalRiskRateWeight + databaseInputs.MaintenanceRate;
-    //     else
-    //         capitalAllocationRate = databaseInputs.MaintenanceRate;
-    //
-    //     var record = _context.CalculatedInputs.FirstOrDefault(x => x.Id == 1);
-    //     if (record != null)
-    //     {
-    //         record.CapitalAllocationRate = capitalAllocationRate;
-    //         _context.SaveChanges();
-    //     }
-    //
-    //     return Ok(capitalAllocationRate);
-    // }
-
+    public ActionResult<decimal> CalculateCapitalAllocationRate()
+    {
+        var databaseInputs =_context.DatabaseInputs.FirstOrDefault() ;
+        decimal capitalAllocationRate = 0;
+        if (databaseInputs.CreditRiskAllocation == "Capital")
+            capitalAllocationRate = databaseInputs.CapitalRiskRateWeight + databaseInputs.MaintenanceRate;
+        else
+            capitalAllocationRate = databaseInputs.MaintenanceRate;
+    
+        _calculatedInputs.CapitalAllocationRate = capitalAllocationRate;
+    
+        return Ok(capitalAllocationRate);
+    }
 
     [Route("api/Calculate-Used-Payment")]
     [HttpPost]
@@ -89,12 +87,7 @@ public class ValuesController : ControllerBase
         var transactionCostRate = CalculateTransactionCostRate(input).Value;
         usedPayment += transactionCostRate;
 
-        var record = _context.CalculatedInputs.FirstOrDefault(x => x.Id == 1);
-        if (record != null)
-        {
-            record.UsedPayment = usedPayment ;
-            _context.SaveChanges();
-        }
+        _calculatedInputs.UsedPayment = usedPayment;
 
         return usedPayment;
     }
