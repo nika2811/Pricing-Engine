@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Pricing_Engine.Db;
+using Pricing_Engine.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<SaveDatabaseInputs>();
 builder.Services.AddDbContext<FinancialDbContext>(
     c => c.UseSqlServer(builder.Configuration["AppDbContextConnection"]));
 var app = builder.Build();

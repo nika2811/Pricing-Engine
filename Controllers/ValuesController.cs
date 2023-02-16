@@ -9,12 +9,13 @@ namespace Pricing_Engine.Controllers;
 [ApiController]
 public class ValuesController : ControllerBase
 {
-    private readonly CalculatedInputs _calculatedInputs = new CalculatedInputs();
+    private readonly CalculatedInputs _calculatedInputs = new();
 
     private readonly FinancialDbContext _context;
     private readonly SaveDatabaseInputs _saveDatabaseInputs;
+    private readonly int[] months = Enumerable.Range(2, 12).ToArray();
 
-    public ValuesController(FinancialDbContext context,SaveDatabaseInputs saveDatabaseInputs)
+    public ValuesController(FinancialDbContext context, SaveDatabaseInputs saveDatabaseInputs)
     {
         _context = context;
         _saveDatabaseInputs = saveDatabaseInputs;
@@ -37,9 +38,9 @@ public class ValuesController : ControllerBase
         if (input.InterestType == "Fixed" && (input.ProductType == "Loan" || input.ProductType == "CD"))
             interestRate = input.InterestRate;
         else if (input.TeaserPeriod == 0)
-            interestRate = input.InterestRate;
+            interestRate = input.TeaserSpread;
         else
-            interestRate = input.InterestSpread + input.InterestRate;
+            interestRate = input.InterestSpread + input.TeaserSpread;
 
         _calculatedInputs.InterestRate = interestRate;
 
@@ -62,15 +63,15 @@ public class ValuesController : ControllerBase
     [HttpPost]
     public ActionResult<decimal> CalculateCapitalAllocationRate()
     {
-        var databaseInputs =_context.DatabaseInputs.FirstOrDefault() ;
+        var databaseInputs = _context.DatabaseInputs.FirstOrDefault();
         decimal capitalAllocationRate = 0;
         if (databaseInputs.CreditRiskAllocation == "Capital")
             capitalAllocationRate = databaseInputs.CapitalRiskRateWeight + databaseInputs.MaintenanceRate;
         else
             capitalAllocationRate = databaseInputs.MaintenanceRate;
-    
+
         _calculatedInputs.CapitalAllocationRate = capitalAllocationRate;
-    
+
         return Ok(capitalAllocationRate);
     }
 
@@ -90,5 +91,26 @@ public class ValuesController : ControllerBase
         _calculatedInputs.UsedPayment = usedPayment;
 
         return usedPayment;
+    }
+
+    [Route("api/Calculate-Payment-Amount")]
+    [HttpPost]
+    public IActionResult CalculatePaymentAmount(FinancialDataInput input)
+    {
+        var interestType = input.InterestType;
+        var commitmentAmount = input.CommitmentAmount;
+        var monthlyFeeIncome = input.MonthlyFeeIncome;
+        var maintenanceRate = _context.DatabaseInputs.FirstOrDefault().MaintenanceRate;
+        var usedPayment = _calculatedInputs.UsedPayment;
+
+
+        var paymentAmount = usedPayment * months[0] + usedPayment * maintenanceRate;
+        ;
+        if (interestType == "Variable")
+            paymentAmount += commitmentAmount + monthlyFeeIncome;
+        else
+            paymentAmount += 0;
+
+        return Ok(paymentAmount);
     }
 }
