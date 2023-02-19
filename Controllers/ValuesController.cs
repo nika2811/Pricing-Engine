@@ -36,16 +36,16 @@ public class ValuesController : ControllerBase
     {
         var calculator = new InterestRateCalculator();
         var interestRate = calculator.CalculateInterestRate(input);
-
+        
         _calculatedInputs.InterestRate = interestRate;
         return Ok(interestRate);
+
     }
 
     [Route("api/Calculate-Transaction-cost-rate")]
     [HttpPost]
     public ActionResult<decimal> CalculateTransactionCostRate(FinancialDataInput input)
     {
-        
         var calculator = new TransactionCostRateCalculator();
         var transactionCostRate = calculator.CalculateTransactionCostRate(input);
 
@@ -70,20 +70,12 @@ public class ValuesController : ControllerBase
     [HttpPost]
     public ActionResult<decimal> CalculateUsedPayment(FinancialDataInput input)
     {
-        decimal usedPayment = 0;
-        if (input.InterestType == "Fixed")
-            usedPayment = input.Balance * input.InterestSpread;
-        else
-            usedPayment = input.Balance * input.TeaserSpread;
-
-        var calculator = new CapitalAllocationRateCalculator(_context);
-        var capitalAllocationRate = calculator.Calculate();
-        var transactionCostRate = CalculateTransactionCostRate(input).Value;
-        usedPayment += transactionCostRate;
+        var calculator = new UsedPaymentCalculator(new TransactionCostRateCalculator());
+        var usedPayment = calculator.CalculateUsedPayment(input);
 
         _calculatedInputs.UsedPayment = usedPayment;
 
-        return usedPayment;
+        return Ok(usedPayment);
     }
 
     [Route("api/Calculate-Payment-Amount")]
