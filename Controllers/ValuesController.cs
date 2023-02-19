@@ -13,7 +13,7 @@ public class ValuesController : ControllerBase
 
     private readonly FinancialDbContext _context;
     private readonly SaveDatabaseInputs _saveDatabaseInputs;
-    private readonly int[] months = Enumerable.Range(2, 12).ToArray();
+    private readonly int[] months = Enumerable.Range(2, 13).ToArray();
 
     public ValuesController(FinancialDbContext context, SaveDatabaseInputs saveDatabaseInputs)
     {
@@ -34,16 +34,10 @@ public class ValuesController : ControllerBase
     [HttpPost]
     public ActionResult<decimal> CalculateInterestRate(FinancialDataInput input)
     {
-        decimal interestRate;
-        if (input.InterestType == "Fixed" && (input.ProductType == "Loan" || input.ProductType == "CD"))
-            interestRate = input.InterestRate;
-        else if (input.TeaserPeriod == 0)
-            interestRate = input.TeaserSpread;
-        else
-            interestRate = input.InterestSpread + input.TeaserSpread;
+        var calculator = new InterestRateCalculator();
+        var interestRate = calculator.CalculateInterestRate(input);
 
         _calculatedInputs.InterestRate = interestRate;
-
         return Ok(interestRate);
     }
 
@@ -51,10 +45,11 @@ public class ValuesController : ControllerBase
     [HttpPost]
     public ActionResult<decimal> CalculateTransactionCostRate(FinancialDataInput input)
     {
-        var transactionCostRate = input.AvgMonthlyFeeIncome / (1 - input.DiscountFromStandardFee);
+        
+        var calculator = new TransactionCostRateCalculator();
+        var transactionCostRate = calculator.CalculateTransactionCostRate(input);
 
         _calculatedInputs.TransactionCostRate = transactionCostRate;
-
         return Ok(transactionCostRate);
     }
 
@@ -63,12 +58,8 @@ public class ValuesController : ControllerBase
     [HttpPost]
     public ActionResult<decimal> CalculateCapitalAllocationRate()
     {
-        var databaseInputs = _context.DatabaseInputs.FirstOrDefault();
-        decimal capitalAllocationRate = 0;
-        if (databaseInputs.CreditRiskAllocation == "Capital")
-            capitalAllocationRate = databaseInputs.CapitalRiskRateWeight + databaseInputs.MaintenanceRate;
-        else
-            capitalAllocationRate = databaseInputs.MaintenanceRate;
+        var calculator = new CapitalAllocationRateCalculator(_context);
+        var capitalAllocationRate = calculator.Calculate();
 
         _calculatedInputs.CapitalAllocationRate = capitalAllocationRate;
 
@@ -85,6 +76,8 @@ public class ValuesController : ControllerBase
         else
             usedPayment = input.Balance * input.TeaserSpread;
 
+        var calculator = new CapitalAllocationRateCalculator(_context);
+        var capitalAllocationRate = calculator.Calculate();
         var transactionCostRate = CalculateTransactionCostRate(input).Value;
         usedPayment += transactionCostRate;
 

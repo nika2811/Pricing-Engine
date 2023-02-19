@@ -6,5 +6,5 @@ public class DatabaseInputs
     public decimal MaintenanceRate { get; set; }
     public decimal PrepaymentRate { get; set; }
     public string CreditRiskAllocation { get; set; }
-    public decimal CapitalRiskRateWeight { get; set; }
+    public double CapitalRiskRateWeight { get; set; }
 }

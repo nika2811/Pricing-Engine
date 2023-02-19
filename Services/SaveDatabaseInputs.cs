@@ -15,7 +15,7 @@ public class SaveDatabaseInputs
             MaintenanceRate = 0.02M,
             PrepaymentRate = 0.07M,
             CreditRiskAllocation = "Capital",
-            CapitalRiskRateWeight = 0.015M
+            CapitalRiskRateWeight = 0.015
         };
 
         // Add the new object to the DatabaseInputs DbSet and save changes to the database
