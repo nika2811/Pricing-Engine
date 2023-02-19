@@ -9,8 +9,6 @@ namespace Pricing_Engine.Controllers;
 [ApiController]
 public class ValuesController : ControllerBase
 {
-    private readonly CalculatedInputs _calculatedInputs = new();
-
     private readonly FinancialDbContext _context;
     private readonly SaveDatabaseInputs _saveDatabaseInputs;
     private readonly int[] months = Enumerable.Range(2, 13).ToArray();
@@ -34,10 +32,8 @@ public class ValuesController : ControllerBase
     [HttpPost]
     public ActionResult<decimal> CalculateInterestRate(FinancialDataInput input)
     {
-        var calculator = new InterestRateCalculator();
-        var interestRate = calculator.CalculateInterestRate(input);
-        
-        _calculatedInputs.InterestRate = interestRate;
+        var calculatedInputs = new CalculatedInputData(input, _context);
+        var interestRate = calculatedInputs.CalculateInterestRate();
         return Ok(interestRate);
 
     }
@@ -46,23 +42,20 @@ public class ValuesController : ControllerBase
     [HttpPost]
     public ActionResult<decimal> CalculateTransactionCostRate(FinancialDataInput input)
     {
-        var calculator = new TransactionCostRateCalculator();
-        var transactionCostRate = calculator.CalculateTransactionCostRate(input);
-
-        _calculatedInputs.TransactionCostRate = transactionCostRate;
+        
+        var calculatedInputs = new CalculatedInputData(input, _context);
+        var transactionCostRate = calculatedInputs.CalculateTransactionCostRate();
         return Ok(transactionCostRate);
     }
 
 
     [Route("api/Calculate-Capital-Allocation-Rate")]
     [HttpPost]
-    public ActionResult<decimal> CalculateCapitalAllocationRate()
+    public ActionResult<decimal> CalculateCapitalAllocationRate(FinancialDataInput input)
     {
-        var calculator = new CapitalAllocationRateCalculator(_context);
-        var capitalAllocationRate = calculator.Calculate();
-
-        _calculatedInputs.CapitalAllocationRate = capitalAllocationRate;
-
+        
+        var calculatedInputs = new CalculatedInputData(input, _context);
+        var capitalAllocationRate = calculatedInputs.CalculateCapitalAllocationRate();
         return Ok(capitalAllocationRate);
     }
 
@@ -70,23 +63,24 @@ public class ValuesController : ControllerBase
     [HttpPost]
     public ActionResult<decimal> CalculateUsedPayment(FinancialDataInput input)
     {
-        var calculator = new UsedPaymentCalculator(new TransactionCostRateCalculator());
-        var usedPayment = calculator.CalculateUsedPayment(input);
-
-        _calculatedInputs.UsedPayment = usedPayment;
-
+        
+        var calculatedInputs = new CalculatedInputData(input, _context);
+        var usedPayment = calculatedInputs.CalculateUsedPayment();
         return Ok(usedPayment);
+
     }
 
     [Route("api/Calculate-Payment-Amount")]
     [HttpPost]
     public IActionResult CalculatePaymentAmount(FinancialDataInput input)
     {
+
+
         var interestType = input.InterestType;
         var commitmentAmount = input.CommitmentAmount;
         var monthlyFeeIncome = input.MonthlyFeeIncome;
         var maintenanceRate = _context.DatabaseInputs.FirstOrDefault().MaintenanceRate;
-        var usedPayment = _calculatedInputs.UsedPayment;
+        var usedPayment = 4;
 
 
         var paymentAmount = usedPayment * months[0] + usedPayment * maintenanceRate;

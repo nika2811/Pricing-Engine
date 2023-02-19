@@ -44,7 +44,7 @@ namespace Pricing_Engine.Services
         }
 
 
-        public void CalculateAllBeforeLastTable(FinancialDataInput input, FinancialDbContext context)
+        public CalculatedInputs CalculateAllBeforeLastTable(FinancialDataInput input, FinancialDbContext context)
         {
             var calculatedInputs = new CalculatedInputs();
 
@@ -63,6 +63,7 @@ namespace Pricing_Engine.Services
             var usedPaymentCalculator = new UsedPaymentCalculator(transactionCostRateCalculator);
             var usedPayment = usedPaymentCalculator.CalculateUsedPayment(input);
             calculatedInputs.UsedPayment = usedPayment;
+            return calculatedInputs;
         }
     }
 
