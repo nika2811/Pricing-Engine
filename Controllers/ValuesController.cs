@@ -89,13 +89,12 @@ public class ValuesController : ControllerBase
                                                                                                                                                                                                                                                  
     [Route("api/Calculate-Big-Table")]
     [HttpPost]
-    public ActionResult<decimal> CalculateBigTable(FinancialDataInput input, int month)
+    public ActionResult<decimal> CalculateBigTable(FinancialDataInput input)
     {
         var bigTable = new BigTable(_context);
         var calculatedPaymentAmount = bigTable.CalculateBigTable(
             input,
-            _context,
-            month
+            _context
         );
 
         return Ok(calculatedPaymentAmount);

@@ -3,7 +3,7 @@
     public class ContractualInterest
     {
         public decimal CalculateContractualInterest
-            (string paymentType, decimal paymentAmount, decimal interestRate, decimal interestSpread, decimal commitmentAmount, decimal monthlyFeeIncome, int month)
+            (string paymentType, decimal paymentAmount, decimal interestRate, decimal interestSpread, decimal commitmentAmount, decimal monthlyFeeIncome)
         {
             decimal paymentAmountTotal = 0;
 
