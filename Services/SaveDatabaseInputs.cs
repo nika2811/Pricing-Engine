@@ -9,7 +9,7 @@ public class SaveDatabaseInputs
     public void SaveTableToDatabase()
     {
         using var context = new FinancialDbContext(CreateDbContextOptions());
-        // Create a new DatabaseInputs object and set its properties
+
         var dbInputs = new DatabaseInputs
         {
             MaintenanceRate = 0.02M,
@@ -18,7 +18,7 @@ public class SaveDatabaseInputs
             CapitalRiskRateWeight = 0.015
         };
 
-        // Add the new object to the DatabaseInputs DbSet and save changes to the database
+
         context.DatabaseInputs.Add(dbInputs);
         context.SaveChanges();
     }

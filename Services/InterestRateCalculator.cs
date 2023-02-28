@@ -7,7 +7,7 @@ public class InterestRateCalculator
     public decimal CalculateInterestRate(FinancialDataInput input)
     {
         decimal interestRate;
-        if (input.InterestType == "Fixed" && (input.ProductType == "Loan" || input.ProductType == "CD"))
+        if (input is { InterestType: "Fixed", ProductType: "Loan" or "CD" })
             interestRate = input.InterestRate;
         else if (input.TeaserPeriod == 0)
             interestRate = input.TeaserSpread;

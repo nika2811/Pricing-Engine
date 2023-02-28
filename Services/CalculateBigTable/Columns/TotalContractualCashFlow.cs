@@ -1,12 +1,11 @@
-﻿namespace Pricing_Engine.Services.CalculateBigTable.Columns
+﻿namespace Pricing_Engine.Services.CalculateBigTable.Columns;
+
+public class TotalContractualCashFlow
 {
-    public class TotalContractualCashFlow
+    public decimal CalculateTotalContractualCashFlow(
+        decimal contractualPrincipal,
+        decimal ballonPaymentAtMaturity)
     {
-        public decimal CalculateTotalContractualCashFlow(
-            decimal contractualPrincipal,
-            decimal ballonPaymentAtMaturity)
-        {
-            return contractualPrincipal + ballonPaymentAtMaturity;
-        }
+        return contractualPrincipal + ballonPaymentAtMaturity;
     }
 }
